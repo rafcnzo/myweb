@@ -2,19 +2,25 @@
 
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { TrendingUp, TrendingDown } from "lucide-react"
 
-type Crypto = {
-  id: string
-  name: string
-  symbol: string
-  current_price_usd: number
-  current_price_idr: number
-  price_change_percentage_24h: number
-  image: string
+type CryptoData = {
+  usd: number
+  idr: number
 }
 
-const COINS_TO_TRACK = ["bitcoin", "ethereum", "solana", "hyperliquid", "tether"]
+type Crypto = {
+  name: string
+  symbol: string
+  price_usd: number
+  price_idr: number
+}
+
+const COIN_MAPPING: Record<string, { name: string; symbol: string }> = {
+  bitcoin: { name: "Bitcoin", symbol: "BTC" },
+  ethereum: { name: "Ethereum", symbol: "ETH" },
+  solana: { name: "Solana", symbol: "SOL" },
+  hype: { name: "Hyperliquid", symbol: "HYPE" },
+}
 
 export function CryptoTicker() {
   const [cryptos, setCryptos] = useState<Crypto[]>([])
@@ -23,20 +29,18 @@ export function CryptoTicker() {
   useEffect(() => {
     const fetchCryptos = async () => {
       try {
-        const coinIds = COINS_TO_TRACK.join(",")
         const res = await fetch(
-          `https://api.coingecko.com/api/v3/coins/markets?ids=${coinIds}&vs_currencies=usd,idr&order=market_cap_desc&sparkline=false&locale=en`
+          `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,hype&vs_currencies=usd,idr`
         )
         const data = await res.json()
-        const formattedData = data.map((coin: any) => ({
-          id: coin.id,
-          name: coin.name,
-          symbol: coin.symbol,
-          current_price_usd: coin.current_price?.usd || 0,
-          current_price_idr: coin.current_price?.idr || 0,
-          price_change_percentage_24h: coin.price_change_percentage_24h || 0,
-          image: coin.image || "",
+        
+        const formattedData = Object.entries(data).map(([key, prices]: [string, any]) => ({
+          name: COIN_MAPPING[key]?.name || key,
+          symbol: COIN_MAPPING[key]?.symbol || key.toUpperCase(),
+          price_usd: prices.usd || 0,
+          price_idr: prices.idr || 0,
         }))
+        
         setCryptos(formattedData)
       } catch (error) {
         console.error("Error fetching crypto data:", error)
@@ -46,7 +50,7 @@ export function CryptoTicker() {
     }
 
     fetchCryptos()
-    const interval = setInterval(fetchCryptos, 45000) // Update every 45 seconds to avoid rate limiting
+    const interval = setInterval(fetchCryptos, 45000) // Update every 45 seconds
     return () => clearInterval(interval)
   }, [])
 
@@ -80,84 +84,62 @@ export function CryptoTicker() {
 
       {/* Crypto Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {cryptos.map((crypto, index) => {
-          const isPositive = crypto.price_change_percentage_24h >= 0
-          return (
-            <motion.div
-              key={crypto.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group relative flex flex-col justify-between p-6 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] hover:border-amber-500/30 transition-all duration-300"
-            >
-              {/* Crypto Info */}
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={crypto.image}
-                    alt={crypto.name}
-                    className="w-8 h-8 rounded-full"
-                  />
-                  <div>
-                    <h3 className="font-sans font-medium text-white group-hover:text-amber-400 transition-colors">
-                      {crypto.name}
-                    </h3>
-                    <p className="font-mono text-xs text-muted-foreground uppercase">
-                      {crypto.symbol}
-                    </p>
-                  </div>
-                </div>
+        {cryptos.map((crypto, index) => (
+          <motion.div
+            key={crypto.symbol}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
+            className="group relative flex flex-col justify-between p-6 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] hover:border-amber-500/30 transition-all duration-300"
+          >
+            {/* Crypto Info */}
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h3 className="font-sans font-medium text-white group-hover:text-amber-400 transition-colors">
+                  {crypto.name}
+                </h3>
+                <p className="font-mono text-xs text-muted-foreground uppercase">
+                  {crypto.symbol}
+                </p>
+              </div>
+            </div>
+
+            {/* Prices */}
+            <div className="mb-6 space-y-3">
+              {/* USD Price */}
+              <div>
+                <p className="font-mono text-xs text-muted-foreground mb-1">USD</p>
+                <p className="font-sans text-xl font-light text-white">
+                  ${crypto.price_usd.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </p>
               </div>
 
-              {/* Prices */}
-              <div className="mb-6 space-y-3">
-                {/* USD Price */}
-                <div>
-                  <p className="font-mono text-xs text-muted-foreground mb-1">USD</p>
-                  <p className="font-sans text-xl font-light text-white">
-                    ${crypto.current_price_usd.toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </p>
-                </div>
-
-                {/* IDR Price */}
-                <div>
-                  <p className="font-mono text-xs text-muted-foreground mb-1">IDR</p>
-                  <p className="font-sans text-xl font-light text-white">
-                    Rp{crypto.current_price_idr.toLocaleString("id-ID", {
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    })}
-                  </p>
-                </div>
+              {/* IDR Price */}
+              <div>
+                <p className="font-mono text-xs text-muted-foreground mb-1">IDR</p>
+                <p className="font-sans text-xl font-light text-white">
+                  Rp{crypto.price_idr.toLocaleString("id-ID", {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  })}
+                </p>
               </div>
+            </div>
 
-              {/* Change 24h */}
-              <div className="flex items-center gap-2 pt-4 border-t border-white/5">
-                <div className={`flex items-center gap-2 font-mono text-sm ${
-                  isPositive ? "text-green-400" : "text-red-400"
-                }`}>
-                  {isPositive ? (
-                    <TrendingUp className="w-4 h-4" />
-                  ) : (
-                    <TrendingDown className="w-4 h-4" />
-                  )}
-                  <span>
-                    {isPositive ? "+" : ""}
-                    {crypto.price_change_percentage_24h.toFixed(2)}%
-                  </span>
-                </div>
-                <span className="relative flex h-2 w-2 ml-auto">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                </span>
-              </div>
-            </motion.div>
-          )
-        })}
+            {/* Live Indicator */}
+            <div className="flex items-center gap-2 pt-4 border-t border-white/5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </span>
+              <p className="font-mono text-xs text-muted-foreground">LIVE</p>
+            </div>
+          </motion.div>
+        ))}
       </div>
 
       {/* Footer Note */}

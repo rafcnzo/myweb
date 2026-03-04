@@ -27,7 +27,7 @@ export function Hero({ initialBiodata }: { initialBiodata: Biodata | null }) {
         <SentientSphere />
       </div>
 
-      <motion.div style={{ opacity, scale }} className="relative z-10 h-full flex flex-col justify-between p-8 md:p-12 md:px-12 md:py-20">
+      <motion.div style={{ opacity, scale }} className="relative z-10 h-full flex flex-col justify-between pt-32 md:pt-20 pb-8 px-8 md:px-12 md:py-20">
         
         {/* Top Left - Name */}
         <motion.div
@@ -38,7 +38,7 @@ export function Hero({ initialBiodata }: { initialBiodata: Biodata | null }) {
           <p className="font-mono text-xs tracking-[0.3em] text-muted-foreground mb-2">
             {initialBiodata?.name?.toUpperCase() || "SYSTEM USER"}
           </p>
-          <h2 className="font-sans text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-balance">
+          <h2 className="font-sans text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-balance">
             {firstWords}
             <br />
             <span className="italic">{lastWord}</span>

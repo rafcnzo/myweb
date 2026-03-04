@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { getBiodata, saveMessage, type Biodata } from "@/lib/supabase"
+import { QuoteTicker } from "./quote-ticker"
 
 export function Footer() {
   const [time, setTime] = useState("")
@@ -71,6 +72,8 @@ export function Footer() {
 
   return (
     <footer id="contact" className="relative">
+      {/* Quote Ticker - News Broadcast Style */}
+      <QuoteTicker />
       {/* Main CTA / Form Toggle */}
       <motion.button
         onClick={() => setShowForm(!showForm)}

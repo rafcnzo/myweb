@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { QuoteTicker } from "./quote-ticker"
 
 const navLinks = [
   { label: "About", href: "#about" },
@@ -39,9 +38,6 @@ export function Navbar({ siteTitle = "PORTFOLIO" }: { siteTitle?: string }) {
 
   return (
     <>
-      {/* Quote Ticker */}
-      <QuoteTicker />
-      
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
