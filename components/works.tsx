@@ -31,7 +31,7 @@ export function Works({ initialProjects }: { initialProjects: Project[] }) {
   }
 
   return (
-    <section id="works" className="relative py-32 px-8 md:px-12 md:py-24">
+    <section id="works" className="relative py-2 px-8 md:px-12 md:py-2">
       {/* Section Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}

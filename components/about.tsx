@@ -9,7 +9,7 @@ export function About({ initialExperiences }: { initialExperiences: Experience[]
   const containerRef = useRef<HTMLElement>(null)
 
   return (
-    <section id="experience" ref={containerRef} className="relative py-32 overflow-hidden md:py-32">
+    <section id="experience" ref={containerRef} className="relative py-2 overflow-hidden md:py-2">
       {/* Section Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -69,7 +69,7 @@ export function About({ initialExperiences }: { initialExperiences: Experience[]
         whileInView={{ scaleX: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 1.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className="mt-16 mx-8 md:mx-12 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent origin-left"
+        className="mt-16 mx-8 md:mx-12 h-px bg-linear-gradient(to right, transparent, white/20, transparent)"
       />
     </section>
   )
