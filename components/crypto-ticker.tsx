@@ -13,13 +13,30 @@ type Crypto = {
   symbol: string
   price_usd: number
   price_idr: number
+  logo: string
 }
 
-const COIN_MAPPING: Record<string, { name: string; symbol: string }> = {
-  bitcoin: { name: "Bitcoin", symbol: "BTC" },
-  ethereum: { name: "Ethereum", symbol: "ETH" },
-  solana: { name: "Solana", symbol: "SOL" },
-  hype: { name: "Hyperliquid", symbol: "HYPE" },
+const COIN_MAPPING: Record<string, { name: string; symbol: string; logo: string }> = {
+  bitcoin: { 
+    name: "Bitcoin", 
+    symbol: "BTC",
+    logo: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579"
+  },
+  ethereum: { 
+    name: "Ethereum", 
+    symbol: "ETH",
+    logo: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1696501628"
+  },
+  solana: { 
+    name: "Solana", 
+    symbol: "SOL",
+    logo: "https://assets.coingecko.com/coins/images/4128/large/solana.png?1718187507"
+  },
+  hype: { 
+    name: "Hyperliquid", 
+    symbol: "HYPE",
+    logo: "https://assets.coingecko.com/coins/images/33726/large/hyperliquid.png?1701788186"
+  },
 }
 
 export function CryptoTicker() {
@@ -39,6 +56,7 @@ export function CryptoTicker() {
           symbol: COIN_MAPPING[key]?.symbol || key.toUpperCase(),
           price_usd: prices.usd || 0,
           price_idr: prices.idr || 0,
+          logo: COIN_MAPPING[key]?.logo || "",
         }))
         
         setCryptos(formattedData)
@@ -95,13 +113,22 @@ export function CryptoTicker() {
           >
             {/* Crypto Info */}
             <div className="flex items-start justify-between mb-6">
-              <div>
-                <h3 className="font-sans font-medium text-white group-hover:text-amber-400 transition-colors">
-                  {crypto.name}
-                </h3>
-                <p className="font-mono text-xs text-muted-foreground uppercase">
-                  {crypto.symbol}
-                </p>
+              <div className="flex items-start gap-3">
+                {crypto.logo && (
+                  <img
+                    src={crypto.logo}
+                    alt={crypto.name}
+                    className="w-10 h-10 rounded-full"
+                  />
+                )}
+                <div>
+                  <h3 className="font-sans font-medium text-white group-hover:text-amber-400 transition-colors">
+                    {crypto.name}
+                  </h3>
+                  <p className="font-mono text-xs text-muted-foreground uppercase">
+                    {crypto.symbol}
+                  </p>
+                </div>
               </div>
             </div>
 
