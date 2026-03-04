@@ -10,6 +10,8 @@ import { Chatbot } from "@/components/chatbot"
 import { SectionBlend } from "@/components/section-blend"
 import { getBiodata, getExperiences, getProjects, supabase } from "@/lib/supabase"
 import { GithubRepos, type Repo } from "@/components/github-repos"
+import { CryptoTicker } from "@/components/crypto-ticker"
+import { QuizGame } from "@/components/quiz-game"
 
 
 async function getGithubRepos(username: string): Promise<Repo[]> {
@@ -73,6 +75,8 @@ export default async function Home() {
         <Works initialProjects={projects} />
         <TechMarquee />
         <GithubRepos repos={githubRepos} />
+        <CryptoTicker />
+        <QuizGame />
         <Footer />
       </main>
     </SmoothScroll>
