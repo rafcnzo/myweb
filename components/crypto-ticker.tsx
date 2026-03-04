@@ -8,11 +8,13 @@ type Crypto = {
   id: string
   name: string
   symbol: string
-  current_price: number
+  current_price_usd: number
+  current_price_idr: number
   price_change_percentage_24h: number
-  market_cap_rank: number
   image: string
 }
+
+const COINS_TO_TRACK = ["bitcoin", "ethereum", "solana", "hyperliquid", "tether"]
 
 export function CryptoTicker() {
   const [cryptos, setCryptos] = useState<Crypto[]>([])
@@ -21,11 +23,21 @@ export function CryptoTicker() {
   useEffect(() => {
     const fetchCryptos = async () => {
       try {
+        const coinIds = COINS_TO_TRACK.join(",")
         const res = await fetch(
-          `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&sparkline=false&locale=en`
+          `https://api.coingecko.com/api/v3/coins/markets?ids=${coinIds}&vs_currencies=usd,idr&order=market_cap_desc&sparkline=false&locale=en`
         )
         const data = await res.json()
-        setCryptos(data)
+        const formattedData = data.map((coin: any) => ({
+          id: coin.id,
+          name: coin.name,
+          symbol: coin.symbol,
+          current_price_usd: coin.current_price?.usd || 0,
+          current_price_idr: coin.current_price?.idr || 0,
+          price_change_percentage_24h: coin.price_change_percentage_24h || 0,
+          image: coin.image || "",
+        }))
+        setCryptos(formattedData)
       } catch (error) {
         console.error("Error fetching crypto data:", error)
       } finally {
@@ -34,7 +46,7 @@ export function CryptoTicker() {
     }
 
     fetchCryptos()
-    const interval = setInterval(fetchCryptos, 30000) // Update every 30 seconds
+    const interval = setInterval(fetchCryptos, 45000) // Update every 45 seconds to avoid rate limiting
     return () => clearInterval(interval)
   }, [])
 
@@ -67,7 +79,7 @@ export function CryptoTicker() {
       </motion.div>
 
       {/* Crypto Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {cryptos.map((crypto, index) => {
           const isPositive = crypto.price_change_percentage_24h >= 0
           return (
@@ -91,26 +103,40 @@ export function CryptoTicker() {
                     <h3 className="font-sans font-medium text-white group-hover:text-amber-400 transition-colors">
                       {crypto.name}
                     </h3>
-                    <p className="font-mono text-xs text-muted-foreground">
-                      #{crypto.market_cap_rank}
+                    <p className="font-mono text-xs text-muted-foreground uppercase">
+                      {crypto.symbol}
                     </p>
                   </div>
                 </div>
-                <p className="font-mono text-sm text-muted-foreground">
-                  {crypto.symbol.toUpperCase()}
-                </p>
               </div>
 
-              {/* Price */}
-              <div className="mb-6">
-                <p className="font-sans text-2xl font-light text-white mb-2">
-                  ${crypto.current_price.toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </p>
+              {/* Prices */}
+              <div className="mb-6 space-y-3">
+                {/* USD Price */}
+                <div>
+                  <p className="font-mono text-xs text-muted-foreground mb-1">USD</p>
+                  <p className="font-sans text-xl font-light text-white">
+                    ${crypto.current_price_usd.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </p>
+                </div>
 
-                {/* Change 24h */}
+                {/* IDR Price */}
+                <div>
+                  <p className="font-mono text-xs text-muted-foreground mb-1">IDR</p>
+                  <p className="font-sans text-xl font-light text-white">
+                    Rp{crypto.current_price_idr.toLocaleString("id-ID", {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })}
+                  </p>
+                </div>
+              </div>
+
+              {/* Change 24h */}
+              <div className="flex items-center gap-2 pt-4 border-t border-white/5">
                 <div className={`flex items-center gap-2 font-mono text-sm ${
                   isPositive ? "text-green-400" : "text-red-400"
                 }`}>
@@ -124,15 +150,10 @@ export function CryptoTicker() {
                     {crypto.price_change_percentage_24h.toFixed(2)}%
                   </span>
                 </div>
-              </div>
-
-              {/* Live Indicator */}
-              <div className="flex items-center gap-2 pt-4 border-t border-white/5">
-                <span className="relative flex h-2 w-2">
+                <span className="relative flex h-2 w-2 ml-auto">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                 </span>
-                <p className="font-mono text-xs text-muted-foreground">LIVE</p>
               </div>
             </motion.div>
           )
@@ -142,7 +163,7 @@ export function CryptoTicker() {
       {/* Footer Note */}
       <div className="mt-12 text-center">
         <p className="font-mono text-xs text-muted-foreground">
-          Data dari CoinGecko • Diupdate setiap 30 detik
+          Data dari CoinGecko • Diupdate setiap 45 detik
         </p>
       </div>
     </section>
